@@ -43,18 +43,18 @@ class SaveCSV(CSV):
 
 
 if __name__ == '__main__':
-    CSV_DIR = '.\\data\\'
-    c = ReadCSV(CSV_DIR, 'MFCC_NEW_SongData.csv', None)
+    CSV_DIR = './data/'
+    c = ReadCSV(CSV_DIR, 'SongData.csv', None)
     df = c.get_data()
     df = df.dropna()
-    pointer = 0
-    names = []
-    print(df)
-    filename = df.iloc[pointer, 0]
-    for idx, data in enumerate(range(len(df))):
-        if filename != df.iloc[idx, 0]:
-            pointer = idx
-        filename = df.iloc[pointer, 0]
-        names.append(pointer)
-    df['song_start'] = names
-    s = SaveCSV(CSV_DIR, 'MFCC_NEW_SongData.csv', df).save_data()
+    # pointer = 0
+    # names = []
+    # print(df)
+    # filename = df.iloc[pointer, 0]
+    # for idx, data in enumerate(range(len(df))):
+    #     if filename != df.iloc[idx, 0]:
+    #         pointer = idx
+    #     filename = df.iloc[pointer, 0]
+    #     names.append(pointer)
+    # df['song_start'] = names
+    s = SaveCSV(CSV_DIR, 'SongData.csv', df).save_data()
