@@ -49,7 +49,7 @@ class SaveVectorData():
                     tmp = data.get_perc_vector()
                 lst.append(tmp)
 
-            lst.append(idx)
+            # lst.append(idx)
             writer.writerow(lst)
 
         f.close()
