@@ -18,11 +18,11 @@ class CSV():
 
 
 class ReadCSV(CSV):
-    def __init__(self, DATA_DIR, FILE_NAME, header):
+    def __init__(self, DATA_DIR, FILE_NAME, header, index_col = None):
         self.DATA_DIR = DATA_DIR
         self.FILE_NAME = FILE_NAME
         CSV.__init__(self, pd.read_csv(
-            f'{self.DATA_DIR}{self.FILE_NAME}', header=header, sep=',', encoding='utf-8-sig'))
+            f'{self.DATA_DIR}{self.FILE_NAME}', header=header, sep=',', index_col= index_col, encoding='utf-8-sig'))
 
     def __del__(self):
         print('ReadCSV DELETE')
