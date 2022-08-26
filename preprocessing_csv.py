@@ -5,7 +5,7 @@ from tkinter.font import names
 import numpy as np
 import pandas as pd
 
-
+# pickle로 변경후 사용 안함
 class CSV():
     def __init__(self, df):
         self.df = df
@@ -41,31 +41,3 @@ class SaveCSV(CSV):
         self.df.to_csv(f'{self.DATA_DIR}{self.FILE_NAME}',
                        sep=',', encoding='utf-8-sig', index=False)
 
-
-if __name__ == '__main__':
-    CSV_DIR = './data/'
-    # lst = ['Test_Bandwidth_SongData.csv', 'Test_Centroid_SongData.csv',
-    # 'Test_Fourier_SongData.csv', 'Test_Harm_SongData.csv',
-    # 'Test_Mfcc_SongData.csv', 'Test_Perc_SongData.csv',
-    # 'Test_RMS_SongData.csv', 'Test_Rolloff_SongData.csv',
-    # ]
-    # for i in lst :
-    #     c = ReadCSV(CSV_DIR, i, None)
-    #     df = c.get_data()
-    #     df = df.dropna()
-    c = ReadCSV(CSV_DIR, 'SongData.csv', None)
-    df = c.get_data()
-    df = df.dropna()
-    # pointer = 0
-    # names = []
-    # print(df)
-    # filename = df.iloc[pointer, 0]
-    # for idx, data in enumerate(range(len(df))):
-    #     if filename != df.iloc[idx, 0]:
-    #         pointer = idx
-    #     filename = df.iloc[pointer, 0]
-    #     names.append(pointer)
-    # df['song_start'] = names
-    #     s = SaveCSV(CSV_DIR, i, df).save_data()
-    #     del s; del c;
-    s = SaveCSV(CSV_DIR, 'SongData.csv', df).save_data()

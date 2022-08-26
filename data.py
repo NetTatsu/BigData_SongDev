@@ -182,26 +182,3 @@ class GetMfccMeanVar(Data):
             self.lst.append(m_mean)
             self.lst.append(m_var)
             count += 1
-
-
-if __name__ == '__main__':
-
-    import csv
-
-    SAVE_DIR = '.\\data\\'
-    SAVE_NAME = '.\\MFCC_SongData.csv'
-    DATA_DIR = '.\\Song\\'
-    f = open(f'{SAVE_DIR}{SAVE_NAME}', 'w', encoding='utf-8-sig', newline='')
-    writer = csv.writer(f)
-    so = s.Song(DATA_DIR, 'wav')
-    songs = so.get_songs()
-
-    for song in songs:
-         lst = []
-         data = Data(song)
-         mfcc = GetMfccVector(song, lst)
-         tmp = mfcc.get_vector()
-         writer.writerow(tmp)
-         
-    f.close()
-         

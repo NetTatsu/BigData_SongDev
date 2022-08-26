@@ -1,5 +1,4 @@
-from preprocessing_csv import ReadCSV, SaveCSV
-
+from similarity import get_similarity_result as get_result
 
 def preprocessing_song(DATA_DIR):
     import song as s
@@ -107,37 +106,46 @@ def save_datas(SAVE_DIR, songs):
     get_beat_vector(SAVE_DIR, songs)
 
 
-def add_header(SAVE_DIR):
-    import preprocessing_csv as pc
-    filenames = ['Bandwidth_SongData.csv', 'Centroid_SongData.csv', 'Fourier_SongData.csv',
-                 'Harm_SongData.csv', 'MFCC_SongData.csv', 'Perc_SongData.csv', 'RMS_SongData.csv', 'Rolloff_SongData.csv']
-
-    for file in (filenames):
-        r = pc.ReadCSV(SAVE_DIR, file, None)
-        df = r.get_data()
-        df = df.dropna()
-        pointer = 0
-        names = []
-        songname = df.iloc[pointer, 0]
-
-        for idx, data in enumerate(range(len(df))):
-            if songname != df.iloc[idx, 0]:
-                pointer = idx
-            songname = df.iloc[pointer, 0]
-            names.append(pointer)
-        df['song_start'] = names
-        new_filename = f'New_{file}'
-        s = pc.SaveCSV(SAVE_DIR, new_filename, df)
-        s.save_data()
-        del r
-        del s
+# def add_header(SAVE_DIR):
+#     # pickle로 데이터셋 변경 이후 사용 안함.
+#     import preprocessing_csv as pc
+#     filenames = ['Bandwidth_SongData.csv', 'Centroid_SongData.csv', 'Fourier_SongData.csv',
+#                  'Harm_SongData.csv', 'MFCC_SongData.csv', 'Perc_SongData.csv', 'RMS_SongData.csv', 'Rolloff_SongData.csv']
+#
+#     for file in (filenames):
+#         r = pc.ReadCSV(SAVE_DIR, file, None)
+#         df = r.get_data()
+#         df = df.dropna()
+#         pointer = 0
+#         names = []
+#         songname = df.iloc[pointer, 0]
+#
+#         for idx, data in enumerate(range(len(df))):
+#             if songname != df.iloc[idx, 0]:
+#                 pointer = idx
+#             songname = df.iloc[pointer, 0]
+#             names.append(pointer)
+#         df['song_start'] = names
+#         new_filename = f'New_{file}'
+#         s = pc.SaveCSV(SAVE_DIR, new_filename, df)
+#         s.save_data()
+#         del r
+#         del s
 
 
 if __name__ == '__main__':
 
-    DATA_DIR = '.\\Song\\'
-    SAVE_DIR = '.\\data\\'
-    songs = preprocessing_song(DATA_DIR)
-    print(songs)
-    save_datas(SAVE_DIR, songs)
-    # add_header(SAVE_DIR)
+    SONG_DIR = './Song/'
+    DATA_DIR = './data/'
+    SAVE_DIR = './db_data/'
+    result = []
+
+    songs = preprocessing_song(SONG_DIR)
+    save_datas(DATA_DIR, songs)
+    result = get_result(DATA_DIR, SAVE_DIR)
+
+    for i in range(len(result)) :
+        for j in result[i] :
+            print(j)
+
+    print('fin')

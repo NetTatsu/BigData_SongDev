@@ -1,7 +1,10 @@
 import csv
 import numpy as np
 import pandas as pd
+import pickle
+import sklearn
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import scale
 
 class DatasetName() :
     def __init__ (self, df_name) :
@@ -14,10 +17,10 @@ class DatasetName() :
         return self.df_name
 class UserDatasetName(DatasetName) :
     def __init__(self):
-        user_df_name = ['Test_SongData.csv','Test_Bandwidth_SongData.csv', 'Test_Centroid_SongData.csv',
-                        'Test_Fourier_SongData.csv', 'Test_Harm_SongData.csv',
-                        'Test_Mfcc_SongData.csv', 'Test_Perc_SongData.csv',
-                        'Test_RMS_SongData.csv', 'Test_Rolloff_SongData.csv',
+        user_df_name = ['Test_SongData.pickle','Test_Bandwidth_SongData.pickle', 'Test_Centroid_SongData.pickle',
+                        'Test_Fourier_SongData.pickle', 'Test_Harm_SongData.pickle',
+                        'Test_Mfcc_SongData.pickle', 'Test_Perc_SongData.pickle',
+                        'Test_RMS_SongData.pickle', 'Test_Rolloff_SongData.pickle',
                         ]
         DatasetName.__init__(self, user_df_name)
 
@@ -26,10 +29,10 @@ class UserDatasetName(DatasetName) :
 
 class DbDatasetName(DatasetName) :
     def __init__(self):
-        db_df_name = ['SongData.csv', 'Bandwidth_SongData.csv', 'Centroid_SongData.csv',
-                      'Fourier_SongData.csv', 'Harm_SongData.csv',
-                      'Mfcc_SongData.csv', 'Perc_SongData.csv',
-                      'RMS_SongData.csv', 'Rolloff_SongData.csv',
+        db_df_name = ['SongData.pickle', 'Bandwidth_SongData.pickle', 'Centroid_SongData.pickle',
+                      'Fourier_SongData.pickle', 'Harm_SongData.pickle',
+                      'Mfcc_SongData.pickle', 'Perc_SongData.pickle',
+                      'RMS_SongData.pickle', 'Rolloff_SongData.pickle',
                       ]
         DatasetName.__init__(self, db_df_name)
 
@@ -37,13 +40,10 @@ class DbDatasetName(DatasetName) :
         print('DbDatasetName DELETE')
 
 
-def get_dataset(DATA_DIR, FILE_NAME, header, index_col = None) :
-    import preprocessing_csv as pc
-    r = pc.ReadCSV(DATA_DIR, FILE_NAME, header, index_col)
-    df = r.get_data()
-    del r
+def get_dataset(DATA_DIR, FILE_NAME) :
+    with open(f'{DATA_DIR}{FILE_NAME}', 'rb') as f :
+        df = pickle.load(f)
     return df
-
 def change_columns(df) :
     column_lst = []
 
@@ -97,27 +97,20 @@ def concat_merge_process(DATA_DIR, df):
                 df = change_columns(df)
     return df
 
-# def add_song_num(df, df2) :
-#     numbers = np.array(range(len(df) + len(df2)))
-#
-#     for i in range(len(numbers)) :
-#         if i < len(df) :
-#             df['song_number'] = i
-#         else :
-#             df2['song_number'] =
 def get_songnames(DATA_DIR, SAVE_DIR):
     r1 = UserDatasetName()
     r2 = DbDatasetName()
     user_df_names = r1.get_name()
     db_df_names = r2.get_name()
-    user_df = get_dataset(DATA_DIR, user_df_names[0], None)
-    db_df = get_dataset(SAVE_DIR, db_df_names[0], None)
+    user_df = get_dataset(DATA_DIR, user_df_names[0])
+    db_df = get_dataset(SAVE_DIR, db_df_names[0])
 
-    user_songnames = user_df[0]
-    db_songnames = db_df[0]
+    user_songnames = user_df.keys()
+    db_songnames = db_df.keys()
 
     return user_songnames, db_songnames
-def concat_padding_df(DATA_DIR, SAVE_DIR, df) :
+
+def preprocessing_df(DATA_DIR, SAVE_DIR, df) :
     r1 = UserDatasetName()
     r2 = DbDatasetName()
     user_df_names = r1.get_name()
@@ -126,13 +119,18 @@ def concat_padding_df(DATA_DIR, SAVE_DIR, df) :
     tmp = df
 
     for i in range(len(db_df_names)) :
-        user_df = get_dataset(DATA_DIR, user_df_names[i], None, 0)
-        db_df = get_dataset(SAVE_DIR, db_df_names[i], None, 0)
-
-        db_df, user_df = change_index_col(db_df, user_df)
-        db_df, user_df = db_df.to_numpy().flatten(), user_df.to_numpy().flatten()
-        db_df, user_df = pd.DataFrame(db_df), pd.DataFrame(user_df)
+        user_df = get_dataset(DATA_DIR, user_df_names[i])
+        db_df = get_dataset(SAVE_DIR, db_df_names[i])
+        user_df = pd.DataFrame(user_df).transpose()
+        db_df = pd.DataFrame(db_df).transpose()
         feature_df = concat_df(db_df, user_df)
+        temp = []
+        if i != 0 :
+            feature_df = df.to_numpy().flatten()
+            for j in range(len(feature_df)) :
+                temp.append(feature_df[j].flatten())
+            feature_df = pd.DataFrame(temp).transpose()
+        feature_df = change_index_col(feature_df)
 
         if i == 1 :
             df = concat_df(tmp, feature_df)
@@ -140,29 +138,34 @@ def concat_padding_df(DATA_DIR, SAVE_DIR, df) :
             df = concat_df(df, feature_df)
 
         tmp = feature_df
+    df = df.drop(0, axis=1)
     df = df.fillna(0)
     return df
-    #
-if __name__ == '__main__' :
-    # macos = / , windows = \\
-    # 5168
-    # filename, index_number 제외
-    DATA_DIR = './data/'
-    SAVE_DIR = './db_data/'
+
+def find_similarity_song(sim_df, index_col, n = 5) :
+    sim_series = sim_df[index_col].sort_values(ascending=False)
+    sim_series = sim_series.drop(index_col)
+    return sim_series.head(n).to_list()
+def get_similarity_result(DATA_DIR, SAVE_DIR) :
+    result = []
     df = pd.DataFrame({'A': [1, 2],
                        'B': [3, 4]}, index=[1, 2])
-    # df = concat_merge_process(DATA_DIR, df)
-
-
-    # padding test
-    # ============
-    df = concat_padding_df(DATA_DIR, SAVE_DIR, df)
+    df = preprocessing_df(DATA_DIR, SAVE_DIR, df)
     user_songnames, db_songnames = get_songnames(DATA_DIR, SAVE_DIR)
-    # print(df.tail(), user_songnames, db_songnames)
-    # for i in range(len(df)) :
-    #     print(df[0, i])
-    sim = cosine_similarity(df)
-    sim_df = pd.DataFrame(sim)
-    print(sim_df.head())
+    df_scaled = sklearn.preprocessing.scale(df)
+    df = pd.DataFrame(df_scaled, columns= df.columns)
+
+    similarity = cosine_similarity(df)
+    sim_df = pd.DataFrame(similarity)
+
+    for i in range(len(db_songnames)) :
+        index_col = len(db_songnames) + len(user_songnames)
+        lst = find_similarity_song(sim_df, len(db_songnames))
+        result.append(lst)
+    return result
+
+if __name__ == '__main__' :
+    DATA_DIR = './data/'
+    SAVE_DIR = './db_data/'
 
 

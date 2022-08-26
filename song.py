@@ -9,6 +9,8 @@ class Dir:
     def __init__(self, data_dir):
         self.data_dir = data_dir
 
+    def __del__(self):
+        print('Dir DELETE')
     def __mkdir__(self):
         if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
@@ -24,6 +26,8 @@ class Song:
         self.songs = glob(self.data_dir + '*.' + self.now_extension)
         self.sample_rate = 44100
 
+    def __del__(self):
+        print('Song DELETE')
     def show_all(self):
         for song in self.songs:
             print(song)
@@ -46,7 +50,8 @@ class ConvertMP3ToWAV(Song):
     def __init__(self, data_dir):
         Song.__init__(self, data_dir, 'mp3')
         self.after_extension = 'wav'
-
+    def __del__(self):
+        print('ConvertMP3ToWAV DELETE')
     def convert(self):
         for song in self.songs:
             if song.split('.')[-1] == self.now_extension:
@@ -61,6 +66,8 @@ class SplitSong(Song):
     def __init__(self, data_dir):
         Song.__init__(self, data_dir, 'wav')
 
+    def __del__(self):
+        print('SplitSong DELETE')
     def split(self):
         for song in self.songs:
             if song.split('.')[-1] == self.now_extension:
