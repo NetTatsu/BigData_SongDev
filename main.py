@@ -1,4 +1,7 @@
 from similarity import get_similarity_result as get_result
+from similarity import get_songnames as sn
+import pandas as pd
+
 
 def preprocessing_song(DATA_DIR):
     import song as s
@@ -97,21 +100,20 @@ def save_datas(SAVE_DIR, songs):
     get_mean_var_data(SAVE_DIR, songs)
     get_mfcc_vector(SAVE_DIR, songs)
     get_centroid_vector(SAVE_DIR, songs)
-    get_fourier_vector(SAVE_DIR, songs)
+    # get_fourier_vector(SAVE_DIR, songs)
     get_rolloff_vector(SAVE_DIR, songs)
-    get_harm_vector(SAVE_DIR, songs)
-    get_perc_vector(SAVE_DIR, songs)
+    # get_harm_vector(SAVE_DIR, songs)
+    # get_perc_vector(SAVE_DIR, songs)
     get_bandwidth_vector(SAVE_DIR, songs)
-    get_rms_vector(SAVE_DIR, songs)
-    get_beat_vector(SAVE_DIR, songs)
+    # get_rms_vector(SAVE_DIR, songs)
+    # get_beat_vector(SAVE_DIR, songs)
 
 
 # def add_header(SAVE_DIR):
-#     # pickle로 데이터셋 변경 이후 사용 안함.
 #     import preprocessing_csv as pc
 #     filenames = ['Bandwidth_SongData.csv', 'Centroid_SongData.csv', 'Fourier_SongData.csv',
 #                  'Harm_SongData.csv', 'MFCC_SongData.csv', 'Perc_SongData.csv', 'RMS_SongData.csv', 'Rolloff_SongData.csv']
-#
+
 #     for file in (filenames):
 #         r = pc.ReadCSV(SAVE_DIR, file, None)
 #         df = r.get_data()
@@ -119,7 +121,7 @@ def save_datas(SAVE_DIR, songs):
 #         pointer = 0
 #         names = []
 #         songname = df.iloc[pointer, 0]
-#
+
 #         for idx, data in enumerate(range(len(df))):
 #             if songname != df.iloc[idx, 0]:
 #                 pointer = idx
@@ -132,20 +134,32 @@ def save_datas(SAVE_DIR, songs):
 #         del r
 #         del s
 
+def get_result_name(result) :
+    result = result.to_dict()
+    dic_key = result.keys()
+    tmp = None
+
+    for i in dic_key :
+        tmp = result.get(i)
+    tmp2 = []
+
+    for i in tmp.keys():
+        tmp2.append(i)
+
+    return tmp2
 
 if __name__ == '__main__':
 
-    SONG_DIR = './Song/'
-    DATA_DIR = './data/'
-    SAVE_DIR = './db_data/'
-    result = []
-
+    SONG_DIR = '.\\Song\\'
+    DATA_DIR = '.\\data\\'
+    SAVE_DIR = '.\\db_data\\'
     songs = preprocessing_song(SONG_DIR)
     save_datas(DATA_DIR, songs)
+    user_name, db_name = sn(DATA_DIR, SAVE_DIR)
     result = get_result(DATA_DIR, SAVE_DIR)
+    print(result)
+    names = get_result_name(result)
 
-    for i in range(len(result)) :
-        for j in result[i] :
-            print(j)
-
-    print('fin')
+    for i in names :
+        if i < len(db_name) :
+            print(db_name[i])

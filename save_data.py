@@ -2,6 +2,7 @@ import data as d
 import csv
 import pickle
 
+
 class SaveVectorData():
     def __init__(self, SAVE_DIR, SAVE_NAME, songs, SAVE_TYPE):
         self.SAVE_DIR = SAVE_DIR
@@ -11,8 +12,7 @@ class SaveVectorData():
 
     def save_data(self):
         dic = {}
-        with open(f'{self.SAVE_DIR}{self.SAVE_NAME}', 'wb') as f :
-
+        with open(f'{self.SAVE_DIR}{self.SAVE_NAME}', 'wb') as f:
 
             for idx, song in enumerate(self.songs):
                 lst = []
@@ -49,8 +49,6 @@ class SaveVectorData():
                 lst.append(tmp)
                 dic[f'{idx}'] = lst
             pickle.dump(dic, f, pickle.HIGHEST_PROTOCOL)
-
-        f.close()
 
 
 class SaveCentroidVectorData(SaveVectorData):
@@ -145,8 +143,7 @@ class SaveMeanVarData():
 
     def save_data(self):
         dic = {}
-        with open(f'{self.SAVE_DIR}{self.SAVE_NAME}', 'wb') as f :
-
+        with open(f'{self.SAVE_DIR}{self.SAVE_NAME}', 'wb') as f:
 
             for idx, song in enumerate(self.songs):
                 lst = []
