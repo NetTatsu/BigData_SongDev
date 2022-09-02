@@ -54,7 +54,9 @@ class GetFourier(Data):
         self.D = np.abs(librosa.stft(self.y, n_fft=2048, hop_length=512))
 
     def get_vector(self):
-        # pad_fourier = self.pad2d(self.D, 60)
+        from sklearn.decomposition import PCA
+        pca = PCA()
+
         return self.D
 
 class GetFourierMeanVar(GetFourier) :
